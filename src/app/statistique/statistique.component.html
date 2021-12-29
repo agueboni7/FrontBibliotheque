@@ -1,0 +1,27 @@
+<div class="card">
+  <div class="card-header text-white bg-success">
+    <h2>STATISTIQUES DES ABONNEMENTS PAR PACK </h2>
+  </div>
+  <div class="card-body">
+
+
+    <div class="table table-striped">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>NbrPrêt</th>
+          <th>Nombre D'Abonnements</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of listCode" >
+            <td class="text-center">{{c[0]}}</td>
+            <td class="text-center">{{c[1]}}</td>
+            <td class="text-center">{{c[2]}}</td>
+        </tr>
+
+      </tbody>
+      </div>
+  </div>
+</div>
+

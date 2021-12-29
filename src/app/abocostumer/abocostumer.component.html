@@ -1,0 +1,60 @@
+<div class="card">
+  <div class="card-header bg-success">
+    <div class="d-flex flex-row-reverse bd-highlight mb-2">
+      <div class="p-2 bd-highlight">
+        <select (change)="onTableSizeChange($event)" class="custom-select">
+          <option *ngFor="let size of tableSizes" [ngValue]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <h2>Statut des Abonnements</h2>
+    <div class="d-flex flex-row-reverse bd-highlight mb-4">
+      <input type="text" placeholder="Rechercher" [(ngModel)]="terme">
+    </div>
+    <div class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>E-mail</th>
+          <th>Date Debut</th>
+          <th>Date Fin</th>
+          <th>Validité(mois)</th>
+          <th>Montant(CFA)</th>
+          <th>NbrPrêt</th>
+          <th> Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor=" let c of abocoList |paginate:{
+                           itemsPerPage: tableSize,
+                            currentPage: page,
+                            totalItems: count
+            }|filter:terme; let i=index">
+
+          <td>{{c.costumer.nom}}</td>
+          <td>{{c.costumer.prenom}}</td>
+          <td>{{c.costumer.mail}}</td>
+          <td>{{c.datDebAC|date:'dd/MM/yyyy'}}</td>
+          <td>{{c.datFinAC|date:'dd/MM/yyyy'}}</td>
+          <td>{{c.abonnement.validite}}</td>
+          <td>{{c.abonnement.montant}}</td>
+          <td>{{c.abonnement.nbrLivre}}</td>
+          <td>{{c.statutAbo}}</td>
+
+        </tr>
+      </tbody>
+      <div class="d-flex justify-content-center">
+        <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" (pageChange)="onTableDataChange($event)">
+        </pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>
+
+

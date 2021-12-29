@@ -1,0 +1,194 @@
+<div class="card">
+  <div class="card-header bg-success">
+    <div class="btn btn-succes" type="button" (click)="onAddOpen()">
+      <mat-icon class="material-icons-two-tone text-white">add</mat-icon>
+    </div>
+    <div class="d-flex flex-row-reverse bd-highlight mb-2">
+      <div class="p-2 bd-highlight">
+        <select (change)="onTableSizeChange($event)" class="custom-select">
+          <option *ngFor="let size of tableSizes" [ngValue]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <h2>NOS PACKS ABONNEMENT</h2>
+    <div class="d-flex flex-row-reverse bd-highlight mb-4">
+      <input type="text" placeholder="Rechercher" [(ngModel)]="terme">
+    </div>
+    <div class="table table-striped">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Validité(mois)</th>
+          <th>Montant</th>
+          <th>Nombre de prêt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of abonList  |paginate:{
+                           itemsPerPage: tableSize,
+                            currentPage: page,
+                            totalItems: count
+            }|filter:terme; let i=index">
+            <td>{{c.code}}</td>
+          <td>{{c.validite}}</td>
+          <td>{{c.montant}}</td>
+          <td>{{c.nbrLivre}}</td>
+          <td>
+            <button type="button" class="btn btn-primary" (click)="editAbon(c)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button type="button" class="btn btn-danger" (click)="deleteAbon(c.idA)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+
+        </tr>
+      </tbody>
+      <div class="d-flex justify-content-center">
+        <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" (pageChange)="onTableDataChange($event)">
+        </pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+  Formulaire pour ajouter les abonnements
+-->
+<div bsModal #newAbonnement="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newAbonnementLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <h2 class="modal-title text-white">Packs d'Abonnement</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="addAbonForm" (ngSubmit)="abonSave()">
+
+            <div class="form-group">
+              <label for="code">Code :</label>
+              <input type="text" class="form-control" formControlName="code"
+                required placeholder="Ex: CXX002"
+                [ngClass]="{'is-invalid':addAbonForm.controls['code'].touched && !addAbonForm.controls['code'].valid}">
+              <div class="invalid invalid-feedback">
+                <span *ngIf="addAbonForm.controls['code'].errors?.required">Saisir le code du ce pack d'abonnement </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="valid">Validité(en semaine):</label>
+              <input type="number" class="form-control" formControlName="valid"
+                placeholder="Validité (en semaine)" required
+                [ngClass]="{'is-invalid':addAbonForm.controls['valid'].touched && !addAbonForm.controls['valid'].valid}">
+              <div class="invalid invalid-feedback">
+                <span *ngIf="addAbonForm.controls['valid'].errors?.required">Entrez la durée de validité </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="mont">Montant(FCFA):</label>
+              <input type="number" class="form-control" formControlName="mont" minlength="3" placeholder="Entrez le prix de l'abonnement" required
+                [ngClass]="{'is-invalid':addAbonForm.controls['mont'].touched && !addAbonForm.controls['mont'].valid}">
+
+              <div class="invalid invalid-feedback">
+                <span *ngIf="addAbonForm.controls['mont'].errors?.required">Entrez le montant d'abonnement </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="nbrLivre">Choisir le Nombre à prêter:</label>
+              <select class="form-control" formControlName="nbrLivre" required
+                [ngClass]="{'is-invalid':addAbonForm.controls['nbrLivre'].touched && !addAbonForm.controls['nbrLivre'].valid}">
+                <option value="2"> 2</option>
+                <option value="3"> 3</option>
+                <option value="4"> 4</option>
+                <option value="5"> 5</option>
+                <option value="8"> 8</option>
+              </select>
+              <div class="invalid-feedback">
+                <span *ngIf="addAbonForm.controls['nbrLivre'].errors?.required">
+                  Choisir le nombre de livre associé à prêter
+                </span>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">ENREGISTRER
+              </button>
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseAjout()">FERMER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--
+  Formulaire de modificationdesabonnements
+-->
+<div bsModal #editAbonnement="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="editAbonnementLabel" aria-hidden="true">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <h2 class="modal-title text-white">Edition Des Packs d'Abonnement</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editAbonForm" (ngSubmit)="abonEdit()">
+
+              <div class="form-group">
+                <label for="code">Code :</label>
+                <input type="text" class="form-control" formControlName="code"
+                [(ngModel)]=abonnement.code>
+              </div>
+
+            <div class="form-group">
+              <label for="valid">Validité(en semaine):</label>
+              <input type="number" class="form-control" formControlName="valid"
+                required [(ngModel)]=abonnement.validite
+                [ngClass]="{'is-invalid':addAbonForm.controls['valid'].touched && !addAbonForm.controls['valid'].valid}">
+
+              <div class="invalid invalid-feedback">
+                <span *ngIf="addAbonForm.controls['valid'].errors?.required">Entrez la durée de validité </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="mont">Montant(FCFA):</label>
+              <input type="number" class="form-control" formControlName="mont"
+              [(ngModel)]=abonnement.montant
+               >
+            </div>
+
+            <div class="form-group">
+              <label for="nbrLivre">Choisir le Nombre à prêter:</label>
+              <select class="form-control" formControlName="nbrLivre" [(ngModel)]=abonnement.nbrLivre >
+                <option value="2"> 2</option>
+                <option value="3"> 3</option>
+                <option value="4"> 4</option>
+                <option value="5"> 5</option>
+                <option value="8"> 8</option>
+              </select>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">MODIFIER
+              </button>
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseEdit()">FERMER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

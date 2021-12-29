@@ -1,0 +1,123 @@
+<div class="card">
+  <div class="card header text-white bg-success">
+    <div>
+        <button class="btn btn-primary" type="button" (click)="onAdd()">
+          <mat-icon>note_add</mat-icon>
+        </button>
+        <div class="d-flex flex-row-reverse bd-highlight mb-2">
+          <div class="p-2 bd-highlight">
+            <select (change)="onTableSizeChange($event)" class="custom-select">
+              <option *ngFor="let size of tableSizes" [ngValue]="size">
+                {{ size }}
+              </option>
+            </select>
+          </div>
+        </div>
+    </div>
+  </div>
+    <h2>Catégorie des Livres</h2>
+    <div class="card-body">
+      <div class="d-flex flex-row-reverse bd-highlight mb-4">
+        <input type="text" placeholder="Rechercher" [(ngModel)]="terme">
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>CATEGORIES</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of listCategory  |paginate:{
+                           itemsPerPage: tableSize,
+                            currentPage: page,
+                            totalItems: count
+            }|filter:terme; let i=index" value="i">
+            <td>{{c.libele}}</td>
+            <td>
+              <button type="button" class="btn btn-primary" (click) ="onEdt(c)" >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button type="button" class="btn btn-danger" (click)="onDelete(c.idCat)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+        <div class="d-flex justify-content-center">
+          <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" (pageChange)="onTableDataChange($event)">
+          </pagination-controls>
+        </div>
+      </table>
+    </div>
+</div>
+
+
+<!--
+  Formulaire d'ajout des catégories
+-->
+<div bsModal #newCategory="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newCategoryLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <h2 class="modal-title text-primary">Inscription</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="addForm" (ngSubmit)="catSave()">
+            <div class="form-group">
+              <label for="libele">Libélé:</label>
+              <input type="text" class="form-control" formControlName="libele" minlength="4"
+                placeholder="Entrez la catégorie" required
+                [ngClass]="{'is-invalid':addForm.controls['libele'].touched && !addForm.controls['libele'].valid}">
+
+              <div class="invalid invalid-feedback">
+                <span *ngIf="addForm.controls['libele'].errors?.required">Entrez votre nom </span>
+                <span *ngIf="addForm.controls['libele'].errors?.minlength">Minimum 4 caractères</span>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">ENREGISTRER
+              </button>
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseAjout()">FERMER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--
+  Formulaire de modification des Catégories de livre
+-->
+<div bsModal #editCategory="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newCategoryLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success">
+          <h2 class="modal-title text-white">Modification</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editForm" (ngSubmit)="catEdit()">
+            <div class="form-group">
+              <label for="libele">Libélé:</label>
+              <input type="text" class="form-control" formControlName="libele"
+              [(ngModel)]=category.libele value="{{category.libele}}">
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">MODIFIER
+              </button>
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseEdit()">FERMER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

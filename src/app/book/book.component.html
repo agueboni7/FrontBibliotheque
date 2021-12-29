@@ -1,0 +1,382 @@
+<div class="card">
+  <div class="card-header bg-success">
+    <div class="btn btn-succes" type="button" (click)="onAddBook()">
+      <mat-icon class="material-icons-two-tone text-white">add</mat-icon>
+    </div>
+    <div class="d-flex flex-row-reverse bd-highlight mb-2">
+      <div class="p-2 bd-highlight">
+        <select (change)="onTableSizeChange($event)" class="custom-select">
+          <option *ngFor="let size of tableSizes" [ngValue]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <h2>BOOKS LIST</h2>
+    <div class="d-flex flex-row-reverse bd-highlight mb-4">
+      <input type="text" placeholder="Rechercher" [(ngModel)]="terme">
+    </div>
+
+    <div class="table table-striped">
+
+      <thead class="bg-default">
+        <tr>
+          <th>ISBN</th>
+          <th>TITRE</th>
+          <th>DATE SORTIE</th>
+          <th>NOMBRE</th>
+          <th>AUTEUR</th>
+          <th>CATEGORIE</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of listBook |paginate:{
+                           itemsPerPage: tableSize,
+                            currentPage: page,
+                            totalItems: count
+            }|filter:terme; let int=index">
+          <td class="text-center">{{item.isbn}}</td>
+          <td class="text-center">{{item.titre}}</td>
+          <td class="text-center">{{item.datSortie |date:'dd/MM/yyyy'}}</td>
+          <td class="text-center">{{item.nombre}}</td>
+          <td class="text-center">{{item.auteur}}</td>
+          <td class="text-center">{{item.category.libele}}</td>
+          <td>
+            <div class="btn-group">
+            <button type="button" class="btn btn-default text-primary" (click)="onEdit(item)"
+            matTooltip="MODIFIER" matTooltipPosition="above">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button type="button" class="btn btn-default text-warning" (click)="loanOpen(item)"
+            matTooltip="PRET/CONSULTATION" matTooltipPosition="above">
+              <span class="material-icons">
+                home_work
+              </span>
+            </button>
+            <button type="button" class="btn btn-default text-success" (click)="acheterLivre()"
+            matTooltip="ACHETER" matTooltipPosition="above">
+              <span class="material-icons">
+                shopping_cart
+              </span>
+
+            </button>
+            <button type="button" class="btn btn-default text-danger" (click)="deleteBook(item.idBo)"
+            matTooltip="SUPPRIMER" matTooltipPosition="above">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          </td>
+
+        </tr>
+      </tbody>
+      <div class="d-flex justify-content-center">
+        <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" (pageChange)="onTableDataChange($event)">
+        </pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!--
+  Formulaire d'inscription des Books
+-->
+<div bsModal #newBook="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newEtudiantLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title text-primary">Inscription</h2>
+        </div>
+  <div class="modal-body">
+    <form [formGroup]="addBookForm" (ngSubmit)="bookSave()">
+      <!--/form> #etuForm="ngForm"-->
+      <div class="form-group">
+        <label for="isbn">ISBN:</label>
+        <input type="text" class="form-control" formControlName="isbn" minlength="4" placeholder="Entrez ISBN"
+          required
+          [ngClass]="{'is-invalid':addBookForm.controls['isbn'].touched && !addBookForm.controls['isbn'].valid}">
+
+        <div class="invalid invalid-feedback">
+          <span *ngIf="addBookForm.controls['isbn'].errors?.required">Insérer l'ISBN </span>
+          <span *ngIf="addBookForm.controls['isbn'].errors?.minlength">Minimum 4 caractères</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="title">TITRE:</label>
+        <input type="text" class="form-control" formControlName="title" required minlength="3" required
+          placeholder=" Entrez le titre"
+          [ngClass]="{'is-invalid': addBookForm.controls['title'].touched && !addBookForm.controls['title'].valid}">
+        <div class="invalid-feedback">
+          <span *ngIf="addBookForm.controls['title'].errors?.required">
+            Entrez le titre du livre
+          </span>
+          <span *ngIf="addBookForm.controls['title'].errors?.minlength">
+            Minimum 3 caractères
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="datSorti"> Date de Sortie:</label>
+        <input type="date" min="1950/02/20" class="form-control" formControlName="datSorti" required
+          placeholder="Entrez la date se sortie du livre"  required
+          [ngClass]="{'is-invalid': addBookForm.controls['datSorti'].touched && !addBookForm.controls['datSorti'].valid}">
+        <div class="invalid-feedback">
+          <span *ngIf="addBookForm.controls['datSorti'].errors?.required">
+            Entrez la date se sortie du livre
+          </span>
+          <span *ngIf="addBookForm.controls['datSorti'].errors?.min">
+            Minimum 1950/02-20
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nombre"> NOMBRE:</label>
+        <input type="number"  class="form-control" formControlName="nombre" required placeholder="Entrez nombre de livres"
+          min="1" required
+          [ngClass]="{'is-invalid': addBookForm.controls['nombre'].touched && !addBookForm.controls['nombre'].valid}">
+        <div class="invalid-feedback">
+          <span *ngIf="addBookForm.controls['nombre'].errors?.required">
+            Entrez le nombre disponible
+          </span>
+          <span *ngIf="addBookForm.controls['nombre'].errors?.min">
+            Minimum 1 livre
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="author">AUTEUR:</label>
+        <input type="text" class="form-control" formControlName="author" required minlength="3" required
+          placeholder=" Entrez le titre"
+          [ngClass]="{'is-invalid': addBookForm.controls['author'].touched && !addBookForm.controls['author'].valid}">
+        <div class="invalid-feedback">
+          <span *ngIf="addBookForm.controls['author'].errors?.required">
+            Entrez l'auteur du livre
+          </span>
+          <span *ngIf="addBookForm.controls['author'].errors?.minlength">
+            Minimum 3 caractères
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cat">CATEGORIE:</label>
+        <select class="form-control" formControlName="cat" required
+          [ngClass]="{'is-invalid':addBookForm.controls['cat'].touched && !addBookForm.controls['cat'].valid}">
+          <div class="invalid-feedback">
+            <span *ngIf="addBookForm.controls['cat'].errors?.required">
+              Veillez choisir une catégorie
+            </span>
+          </div>
+
+          <!--; let i=index" [value]="f"-->
+          <option *ngFor="let c of listCategory ; let id=index" [value]="id">{{c.libele}}</option>
+        </select>
+      </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary mt-3" type="submit">ENREGISTRER
+      </button>
+
+      <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseAjout()">FERMER
+      </button>
+     </div>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
+</div>
+
+<!--
+  Formulaire de Modification
+-->
+<div bsModal #editBook="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ediBookLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-author text-primary">MODIFICATION</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editBookForm" (ngSubmit)="bookEdite()">
+            <!--/form> #etuForm="ngForm"-->
+            <div class="form-group">
+              <label for="isbn">ISBN:</label>
+              <input type="text" class="form-control" formControlName="isbn"
+                [(ngModel)]=book.isbn>
+              </div>
+
+            <div class="form-group">
+                <label for="title">TITRE:</label>
+                <input type="text" class="form-control" formControlName="title"
+                   [(ngModel)]=book.titre>
+            </div>
+
+            <div class="form-group">
+              <label for="datSorti"> Date de Sortie:</label>
+              <input type="date"  class="form-control" formControlName="datSorti" required
+                 [ngModel]="book.datSortie |date:'yyyy-MM-dd'">
+            </div>
+
+            <div class="form-group">
+              <label for="nombre"> NOMBRE:</label>
+              <input type="number" min="1" class="form-control" formControlName="nombre"
+                [(ngModel)]=book.nombre>
+            </div>
+
+            <div class="form-group">
+              <label for="author">AUTEUR:</label>
+              <input type="text" class="form-control" formControlName="author" required minlength="3"
+                 [(ngModel)]=book.auteur>
+            </div>
+
+            <div class="form-group">
+              <label for="cat">CATEGIRIE:</label>
+              <select class="form-control" formControlName="cat" required>
+                <option *ngFor="let c of listCategory; let id=index" [value]="c.idCat">{{c.libele}}</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">MODIFIER
+              </button>
+
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseEdit()">FERMER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--
+  Formulaire pour ajouter un prêt
+-->
+<div bsModal #addLoan="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newCategoryLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success">
+          <h2 class="modal-title text-white">OPERATION PRET-CONSULTATION </h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="loanForm" (ngSubmit)="loanSave()">
+
+            <div class="form-group">
+              <label for="isbn">ISBN:</label>
+              <input type="text" class="form-control" formControlName="isbn" [(ngModel)]=book.isbn readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="titre">Titre:</label>
+              <input type="text" class="form-control" formControlName="titre" [(ngModel)]=book.titre readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="auteur">Auteur:</label>
+              <input type="text" class="form-control" formControlName="auteur" [(ngModel)]=book.auteur readonly>
+            </div>
+
+            <div class="form-group">
+              <label for="datAjout"> Date d'Ajout:</label>
+              <input type="date" class="form-control" formControlName="datAjout" required
+                [ngClass]="{'is-invalid': !loanForm.controls['datAjout'].touched && !loanForm.controls['datAjout'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="loanForm.controls['datAjout'].errors?.required">
+                  Entrez la date de l'opération
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="datRetour"> Date de retour:</label>
+              <input type="date" class="form-control" formControlName="datRetour" required
+                [ngClass]="{'is-invalid': !loanForm.controls['datRetour'].touched && !loanForm.controls['datRetour'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="loanForm.controls['datRetour'].errors?.required">
+                  Entrez la date du retour du livre
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group mt-3">
+              <label for="typConsult">Consulter Sur Place :
+              <input type="checkbox" formControlName="typConsult" style="width:30px; height:25px "  checked></label>
+            </div>
+
+              <div class="form-group mt-2">
+                <label for="costumer">Choisir le client:</label>
+                <select class="form-control" formControlName="costumer" required (change)="verifyExist()"
+                  [ngClass]="{'is-invalid':loanForm.controls['costumer'].touched && !loanForm.controls['costumer'].valid}"
+                >
+                  <div class="invalid-feedback">
+                    <span *ngIf="loanForm.controls['costumer'].errors?.required">
+                      Veillez choisir un client
+                    </span>
+                  </div>
+                  <!--; let i=index" [value]="f"-->
+                  <option *ngFor="let c of listCostumer ; let id=index" [value]="id">{{c.nom}} -- {{c.prenom}} -- {{c.profession}}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="abonnement" [hidden]="this.loanForm.value['typConsult']== true">Abonnement ASSOCIE:</label>
+                <select class="form-control" formControlName="abonnement" (change)="onNbrPretAbonementAttein()" [hidden]="this.loanForm.value['typConsult']== true" >
+                  <!--; let i=index" [value]="f" -->
+                  <option *ngFor="let c of listAboCostumer; let i=index" [value]="i">{{c.abonnement.code}}-{{c.datDebAC|date:"dd/MM/yyyy"}} au
+                    {{c.datFinAC|date:"dd/MM/yyyy"}}</option>
+                </select>
+              </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit" [disabled]="this.oneLoanExist==true">PRETER
+              </button>
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onClosePret()">ANNULER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+  Page de paiement
+-->
+
+<div bsModal #paye="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ediBookLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-author text-primary">PAIEMENT</h2>
+        </div>
+                <kkiapay-widget amount="12"
+                   key="f4549fc00cc511ecb46e736c002ecf6b"
+                    url=""
+                   position="center"
+                    sandbox="true"
+                    data=""
+                   callback="">
+                  </kkiapay-widget>
+
+      </div>
+    </div>
+  </div>
+</div>
+

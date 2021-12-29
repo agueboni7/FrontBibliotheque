@@ -1,0 +1,377 @@
+<div class="card">
+  <div class="card-header bg-success">
+    <div class="btn btn-primary" type="button" (click)="onOpenCostumer()">
+      <mat-icon class="material-icons-two-tone text-white">add</mat-icon>
+    </div>
+    <div class="d-flex flex-row-reverse bd-highlight mb-2">
+      <div class="p-2 bd-highlight">
+        <select (change)="onTableSizeChange($event)" class="custom-select">
+          <option *ngFor="let size of tableSizes" [ngValue]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+    </div>
+  <div class="card-body">
+    <h2>Costumer List</h2>
+    <div class="d-flex flex-row-reverse bd-highlight mb-4">
+      <input type="text" placeholder="Rechercher" [(ngModel)]="terme">
+    </div>
+   <div class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Profession</th>
+          <th>Postal</th>
+          <th>Mail</th>
+          <th>DateAjout</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of costumerList |paginate:{
+                           itemsPerPage: tableSize,
+                            currentPage: page,
+                            totalItems: count
+            }|filter:terme; let int=index
+         ">
+          <td>{{c.nom}}</td>
+          <td>{{c.prenom}}</td>
+          <td>{{c.profession}}</td>
+          <td>{{c.postal}}</td>
+          <td>{{c.mail}}</td>
+          <td>{{c.datAjout|date:'dd/MM/yyyy'}}</td>
+
+          <td>
+            <button type="button" class="btn btn-default text-primary" (click)="onEdit(c)" matTooltip="Modifier"
+            matTooltipPosition="above">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button type="button" class="btn btn-default text-danger" (click)="newCustAbo(c)"
+             matTooltip="Abonnement" matTooltipPosition="after">
+            <span class="material-icons">
+              subscriptions
+            </span>
+            </button>
+            <button type="button" class="btn btn-default text-danger" (click)="onDelete(c.id)"
+            matTooltip="Supprimer" matTooltipPosition="after">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+
+        </tr>
+      </tbody>
+      <div class="d-flex justify-content-center">
+        <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" (pageChange)="onTableDataChange($event)">
+        </pagination-controls>
+      </div>
+   </div>
+  </div>
+</div>
+
+<!--
+  Ajouter Costumer
+-->
+<div bsModal #newCostumer="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newEtudiantLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title text-primary">Inscription des clients</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="addCostumerForm" (ngSubmit)="costumerSave()">
+
+            <div class="form-group">
+              <label for="firstName">NOM:</label>
+              <input type="text" class="form-control" formControlName="firstName" minlength="4" placeholder="Entrez votre nom"
+                required
+                [ngClass]="{'is-invalid':addCostumerForm.controls['firstName'].touched && !addCostumerForm.controls['firstName'].valid}">
+
+              <div class="invalid invalid-feedback">
+                <span *ngIf="addCostumerForm.controls['firstName'].errors?.required">Entrez votre nom </span>
+                <span *ngIf="addCostumerForm.controls['firstName'].errors?.minlength">Minimum 4 caractères</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Prénom:</label>
+              <input type="text" class="form-control" formControlName="lastName" required minlength="3" required
+                placeholder=" Entrez votre prénom"
+                [ngClass]="{'is-invalid': addCostumerForm.controls['lastName'].touched && !addCostumerForm.controls['lastName'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="addCostumerForm.controls['lastName'].errors?.required">
+                  Entrez votre prénom
+                </span>
+                <span *ngIf="addCostumerForm.controls['lastName'].errors?.minlength">
+                  Minimum 3 caractères
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="prof"> Profession:</label>
+              <input type="text" minlength="3" class="form-control" formControlName="prof"
+                placeholder="Entrez votre profession" required
+                [ngClass]="{'is-invalid': addCostumerForm.controls['prof'].touched && !addCostumerForm.controls['prof'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="addCostumerForm.controls['prof'].errors?.required">
+                  Entrez votre profession
+                </span>
+                <span *ngIf="addCostumerForm.controls['prof'].errors?.min">
+                  Minimum 3 caractères
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="posta"> Adresse:</label>
+              <input type="text" minlength="4" class="form-control" formControlName="posta" required
+                placeholder="Entrez votre adresse postale"
+                [ngClass]="{'is-invalid': addCostumerForm.controls['posta'].touched && !addCostumerForm.controls['posta'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="addCostumerForm.controls['posta'].errors?.required">
+                  Entrez votre adresse
+                </span>
+                <span *ngIf="addCostumerForm.controls['posta'].errors?.min">
+                  Minimum 4 caractères
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="mail">E-mail:</label>
+              <input type="mail" class="form-control" formControlName="mail" required placeholder=" Entrez votre mail"
+                [ngClass]="{'is-invalid': addCostumerForm.controls['mail'].touched && !addCostumerForm.controls['mail'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="addCostumerForm.controls['mail'].errors?.required">
+                  Entrez Votre Mail
+                </span>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">ENREGISTRER
+              </button>
+
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseAjout()">FERMER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--
+  Modification
+-->
+<div bsModal #editCostumer="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCostumerLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title text-primary">MODIFICATION DES CLIENTS</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editCostumerForm" (ngSubmit)="costumerEdit()">
+
+            <div class="form-group">
+              <label for="firstName">NOM:</label>
+              <input type="text" class="form-control" formControlName="firstName" [(ngModel)]=costumer.nom minlength="4"
+                placeholder="Entrez votre nom" required
+                [ngClass]="{'is-invalid':editCostumerForm.controls['firstName'].touched && !editCostumerForm.controls['firstName'].valid}">
+
+              <div class="invalid invalid-feedback">
+                <span *ngIf="editCostumerForm.controls['firstName'].errors?.required">Entrez votre nom </span>
+                <span *ngIf="editCostumerForm.controls['firstName'].errors?.minlength">Minimum 4 caractères</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Prénom:</label>
+              <input type="text" class="form-control" formControlName="lastName" [(ngModel)]=costumer.prenom required
+                minlength="3" required placeholder=" Entrez votre prénom"
+                [ngClass]="{'is-invalid': editCostumerForm.controls['lastName'].touched && !editCostumerForm.controls['lastName'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="editCostumerForm.controls['lastName'].errors?.required">
+                  Entrez votre prénom
+                </span>
+                <span *ngIf="editCostumerForm.controls['lastName'].errors?.minlength">
+                  Minimum 3 caractères
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="prof"> Profession:</label>
+              <input type="text"  class="form-control" formControlName="prof" [(ngModel)]=costumer.profession
+                placeholder="Entrez votre profession" required minlength="3"
+                [ngClass]="{'is-invalid': editCostumerForm.controls['prof'].touched && !editCostumerForm.controls['prof'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="editCostumerForm.controls['prof'].errors?.required">
+                  Entrez votre profession
+                </span>
+                <span *ngIf="editCostumerForm.controls['prof'].errors?.minlength">
+                  Minimum 3 caractères
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="posta"> Adresse:</label>
+              <input type="text" minlength="4" class="form-control" formControlName="posta" [(ngModel)]=costumer.postal
+                required placeholder="Entrez votre adresse postale"
+                [ngClass]="{'is-invalid': editCostumerForm.controls['posta'].touched && !editCostumerForm.controls['posta'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="editCostumerForm.controls['posta'].errors?.required">
+                  Entrez votre adresse
+                </span>
+                <span *ngIf="editCostumerForm.controls['posta'].errors?.minlenght">
+                  Minimum 4 caractères
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="mail">E-mail:</label>
+              <input type="text" class="form-control" formControlName="mail" [(ngModel)]=costumer.mail required
+                placeholder=" Entrez votre mail" minlength="6"
+                [ngClass]="{'is-invalid': editCostumerForm.controls['mail'].touched && !editCostumerForm.controls['mail'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="editCostumerForm.controls['mail'].errors?.minlenght">
+                  Au moin 6 caractères
+                </span>
+                <span *ngIf="editCostumerForm.controls['mail'].errors?.required">
+                  Entrez Votre Mail
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="datA">Date Ajout:</label>
+              <input type="date" class="form-control" formControlName="datA"  [ngModel]="costumer.datAjout | date:'yyyy-MM-dd'" >
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">AJOUTER
+              </button>
+
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCloseEdit()">FERMER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--FORMULAIRE POUR AJOUTER DES ABONNEMENTS-->
+
+<div bsModal #addAbo="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCostumerLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-default">
+          <h2 class="modal-title text-primary">AJOUT DES ABONNEMENTS</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="addAboForm" (ngSubmit)="addAbonnement()">
+
+            <div class="form-group">
+              <label for="firstName">Nom:</label>
+              <input type="text" class="form-control" formControlName="firstName" [(ngModel)]=costumer.nom readonly
+
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Prénom:</label>
+              <input type="text" class="form-control" formControlName="lastName" [(ngModel)]=costumer.prenom readonly
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="mail">E-mail:</label>
+                <input type="text" class="form-control" formControlName="mail" [(ngModel)]=costumer.mail readonly>
+              </div>
+
+            <div class="form-group">
+              <label for="prof">Date Debut:</label>
+              <input type="date"  class="form-control" formControlName="datdeb" required
+              [ngClass]="{'is-invalid':addAboForm.controls['datdeb'].touched && !addAboForm.controls['datdeb'].valid}"
+              (change)="OnSelected()">
+              <div class="invalid-feedback">
+                <span *ngIf="addAboForm.controls['datdeb'].errors?.required">
+                  Veillez choisir la  date de debut
+                </span>
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label for="pack">Pack d'abonnement:</label>
+              <select class="form-control" formControlName="pack" required
+                [ngClass]="{'is-invalid':addAboForm.controls['pack'].touched && !addAboForm.controls['pack'].valid}"
+                 (change)="OnSelected()">
+
+                <!--; let i=index" [value]="f"-->
+                <option *ngFor="let pack of abonnementList; let i=index" [value]="i" >{{pack.validite}} mois {{pack.nbrLivre}} Livre à prêter à {{pack.montant}} CFA</option>
+              </select>
+              <div class="invalid-feedback">
+                <span *ngIf="addAboForm.controls['pack'].errors?.required">
+                  Veillez choisir un pack
+                </span>
+              </div>
+            </div>
+
+            <span for="datesFin">Date d'Expiration: {{this.datesFin
+              |date:'dd/MM/yyyy'}}</span>
+
+            <div class="modal-footer">
+              <button class="btn btn-info mt-3" type="submit">S'Abonner
+
+              </button>
+
+              <button type="button" class="btn btn-danger mt-3" data-bs-dismiss="modal" (click)="onCloseAbo()">FERMER
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div bsModal #paye="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ediBookLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-author text-primary">PAIEMENT</h2>
+        </div>
+                <kkiapay-widget
+                   amount="aFactuer"
+                   key="f4549fc00cc511ecb46e736c002ecf6b"
+                    url=""
+                   position="center"
+                    sandbox="true"
+                    data=""
+                   callback="">
+                  </kkiapay-widget>
+
+      </div>
+    </div>
+  </div>
+</div>

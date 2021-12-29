@@ -1,0 +1,124 @@
+<div class="card">
+  <div class="card-header bg-success">
+    <div class="d-flex flex-row-reverse bd-highlight mb-2">
+      <div class="p-2 bd-highlight">
+        <select (change)="onTableSizeChange($event)" class="custom-select">
+          <option *ngFor="let size of tableSizes" [ngValue]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <h2>Loan List</h2>
+    <div class="d-flex flex-row-reverse bd-highlight mb-4">
+      <input type="text" placeholder="Rechercher" [(ngModel)]="terme">
+    </div>
+    <div class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>E-mail</th>
+          <th>Titre</th>
+          <th>ISBN</th>
+          <th>Date Debut</th>
+          <th>Date Fin</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of loanList   |paginate:{
+                           itemsPerPage: tableSize,
+                            currentPage: page,
+                            totalItems: count
+            }|filter:terme">
+          <td>{{item.costumer.nom}}</td>
+          <td>{{item.costumer.prenom}}</td>
+          <td>{{item.costumer.mail}}</td>
+          <td>{{item.book.titre}}</td>
+          <td>{{item.book.isbn}}</td>
+          <td>{{item.datDeb|date:'dd/MM/yyyy'}}</td>
+          <td>{{item.datFin|date:'dd/MM/yyyy'}}</td>
+          <td>{{item.typeOp}}</td>
+          <td>
+            <button type="button" class="btn btn-success" (click)="onSend(item.costumer)">
+              <mat-icon> email</mat-icon>
+            </button>
+            <button type="button" class="btn btn-danger" (click)=" deletedLoan(item.idL)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+
+        </tr>
+      </tbody>
+      <div class="d-flex justify-content-center">
+        <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" (pageChange)="onTableDataChange($event)">
+        </pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+  Formulaire for Mail send
+-->
+<div bsModal #newMail="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newMailLabel"
+  aria-hidden="false">
+  <div class="modal-dialog modal-primary modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <h2 class="modal-title text-white">ENVOI DES MAILS</h2>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="mailForm" (ngSubmit)="mailSend()" >
+
+            <div class="form-group">
+              <label for="cosmail">Mail Costumer:</label>
+              <input type="text" class="form-control" formControlName="cosmail" [ngModel]=costumer.mail
+                 readonly
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="object"> Objet :</label>
+              <input type="text" class="form-control" formControlName="object"
+              placeholder="Entrez l'objet " required
+                [ngClass]="{'is-invalid': mailForm.controls['object'].touched && !mailForm.controls['object'].valid}">
+              <div class="invalid-feedback">
+                <span *ngIf="mailForm.controls['object'].errors?.required">
+                  Entrez l'objet
+                </span>
+               </div>
+            </div>
+
+            <div class="form-group">
+              <label for="msg"> Message:</label>
+              <textarea type="textarrea"  class="form-control" formControlName="msg" required
+                placeholder="Tapez le massage"
+                [ngClass]="{'is-invalid': mailForm.controls['msg'].touched && !mailForm.controls['msg'].valid}"
+                 rows="3"></textarea>
+              <div class="invalid-feedback">
+                <span *ngIf="mailForm.controls['msg'].errors?.required">
+                  Tapez le massage
+                </span>
+              </div>
+            </div>
+
+
+            <div class="modal-footer">
+              <button class="btn btn-primary mt-3" type="submit">ENVOYER
+              </button>
+
+              <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onCancel()">ANNULER
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

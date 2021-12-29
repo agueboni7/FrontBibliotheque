@@ -1,0 +1,222 @@
+
+
+<div class="card col-md-7">
+  <div class="card-header bg-danger text-white">
+    <h6>Abonnements qui expirent dans aujourd'huie</h6>
+  </div>
+    </div>
+  <div class="card-body">
+
+   <div class="table table-striped">
+    <button type="button" class="btn btn-default pull-right text-danger"  matTooltip="Avertir via mail"
+    matTooltipPosition="after" (click)="onSendClicked(this.destinataire, modaleSendMail)">
+      <mat-icon>send</mat-icon>
+    </button>
+           <input type="checkbox" class="pull-right mt-2" [(ngModel)]="masterSelected"
+            Name="cAll" style="width:30px; height:20px" (change)="checkUncheckAll()">
+
+      <tbody>
+        <tr  *ngFor="let j of listAujourdhuie; let i=index">
+          <td>{{j.costumer.nom}}</td>
+          <td>{{j.costumer.prenom}}</td>
+          <td>{{j.costumer.mail}}</td>
+          <td>{{j.datDebAC|date:'dd/MM/yyyy'}}</td>
+          <td>{{j.datFinAC|date:'dd/MM/yyyy'}}</td>
+          <td>{{j.abonnement.validite}}</td>
+          <td>{{j.abonnement.montant}}</td>
+          <td>
+            <input type="checkbox" [(ngModel)]="j.isSelected" name="checkOne" value="{{j.costumer.mail}}"
+            (change)="isAllSelected()"  ></td>
+        </tr>
+      </tbody>
+      <div class="d-flex justify-content-center">
+        <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" >
+        </pagination-controls>
+      </div>
+   </div>
+  </div>
+
+  <!---Liste dans un jour-->
+  <div class="card col-md-9">
+    <div class="card-header bg-primary text-white">
+      <h6>Abonnement qui expirent dans un jours</h6>
+    </div>
+      </div>
+    <div class="card-body">
+      <button type="button" class="btn btn-default pull-right text-primary"  matTooltip="Avertir via mail"
+      matTooltipPosition="after" (click)="onSendClicked(this.destinataire, modaleSendMail)">
+        <mat-icon>send</mat-icon>
+      </button>
+             <input type="checkbox" class="pull-right mt-2" [(ngModel)]="AlSelected"
+              Name="cAll" style="width:30px; height:20px" (change)="toutSelectionner()">
+     <div class="table table-striped">
+        <thead>
+          <tr>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let i of listDansUnjour">
+            <td>{{i.costumer.nom}}</td>
+            <td>{{i.costumer.prenom}}</td>
+            <td>{{i.costumer.mail}}</td>
+            <td>{{i.datDebAC|date:'dd/MM/yyyy'}}</td>
+            <td>{{i.datFinAC|date:'dd/MM/yyyy'}}</td>
+            <td>{{i.abonnement.validite}}</td>
+            <td>{{i.abonnement.montant}}</td>
+            <td>
+              <input type="checkbox" [(ngModel)]="i.isSelected" name="checkOne" value="{{i.costumer.mail}}"
+              (change)="selectUnAUn()"  ></td>
+
+          </tr>
+        </tbody>
+        <div class="d-flex justify-content-center">
+          <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" >
+          </pagination-controls>
+        </div>
+     </div>
+    </div>
+
+    <div class="card col-md-8">
+      <div class="card-header bg-success text-white">
+        <h6>Abonnement qui expirent dans deux jours</h6>
+      </div>
+        </div>
+      <div class="card-body">
+        <button type="button" class="btn btn-default pull-right text-success"  matTooltip="Avertir via mail"
+        matTooltipPosition="after" (click)="onSendClicked(this.destinataire, modaleSendMail)">
+          <mat-icon>send</mat-icon>
+        </button>
+               <input type="checkbox" class="pull-right mt-2" [(ngModel)]="deuxSelect"
+                Name="cAll" style="width:30px; height:20px" (change)="toutSelectDeux()">
+       <div class="table table-striped">
+         <tbody>
+            <tr *ngFor="let c of listDansDeuxjours">
+              <td>{{c.costumer.nom}}</td>
+              <td>{{c.costumer.prenom}}</td>
+              <td>{{c.costumer.mail}}</td>
+              <td>{{c.datDebAC|date:'dd/MM/yyyy'}}</td>
+              <td>{{c.datFinAC|date:'dd/MM/yyyy'}}</td>
+              <td>{{c.abonnement.validite}}</td>
+              <td>{{c.abonnement.montant}}</td>
+              <td>
+                <input type="checkbox" [(ngModel)]="c.isSelected" name="checkOne" value="{{c.costumer.mail}}"
+                (change)="isUnAUnDeuxJ()"  ></td>
+
+            </tr>
+          </tbody>
+          <div class="d-flex justify-content-center">
+            <pagination-controls [responsive]=true previousLabel="Prev" nextLabel="Next" >
+            </pagination-controls>
+          </div>
+       </div>
+      </div>
+
+
+     <!-- <div bsModal #sendMail="bs-modal" class="modal fade" tabindex="-1"  role="dialog" aria-labelledby="newMailLabel"
+      aria-hidden="false" >
+      <div class="modal-dialog modal-primary modal-md" style="z-index: 1100;" role="document"  >
+        <div class="modal-dialog" >
+          <div class="modal-content" >
+            <div class="modal-header bg-primary">
+              <h2 class="modal-title text-white">ENVOI DES MAILS</h2>
+            </div>
+            <div class="modal-body" >
+              <form [formGroup]="mailForm" (ngSubmit)="mailSend()" >
+
+                <div class="form-group">
+                  <label for="cosmail">Mail Costumer:</label>
+                  <input type="text" class="form-control" formControlName="cosmail" [ngModel]=costumer.mail
+                     readonly
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label for="object"> Objet :</label>
+                  <input type="text" class="form-control" formControlName="object"
+                  placeholder="Entrez l'objet " required
+                    [ngClass]="{'is-invalid': mailForm.controls['object'].touched && !mailForm.controls['object'].valid}">
+                  <div class="invalid-feedback">
+                    <span *ngIf="mailForm.controls['object'].errors?.required">
+                      Entrez l'objet
+                    </span>
+                   </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="msg"> Message:</label>
+                  <textarea type="textarrea"  class="form-control" formControlName="msg" required
+                    placeholder="Tapez le massage"
+                    [ngClass]="{'is-invalid': mailForm.controls['msg'].touched && !mailForm.controls['msg'].valid}"
+                     rows="3"></textarea>
+                  <div class="invalid-feedback">
+                    <span *ngIf="mailForm.controls['msg'].errors?.required">
+                      Tapez le massage
+                    </span>
+                  </div>
+                </div>
+
+
+                <div class="modal-footer">
+                  <button class="btn btn-primary mt-3" type="submit">ENVOYER
+                  </button>
+
+                  <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onSendClose()">ANNULER
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div-->
+
+    <ng-template #modaleSendMail>
+      <div class="modal-header bg-primary">
+        <h2 class="modal-title text-white">ENVOI DES MAILS</h2>
+      </div>
+      <div class="modal-body" >
+        <form [formGroup]="mailForm" (ngSubmit)="mailSend()" >
+
+          <div class="form-group">
+            <label for="cosmail">Mail Costumer:</label>
+            <input type="text" class="form-control" formControlName="cosmail" [(ngModel)]="this.destinataire"
+               >
+          </div>
+
+          <div class="form-group">
+            <label for="object"> Objet :</label>
+            <input type="text" class="form-control" formControlName="object"
+            placeholder="Entrez l'objet " required
+              [ngClass]="{'is-invalid': mailForm.controls['object'].touched && !mailForm.controls['object'].valid}">
+            <div class="invalid-feedback">
+              <span *ngIf="mailForm.controls['object'].errors?.required">
+                Entrez l'objet
+              </span>
+             </div>
+          </div>
+
+          <div class="form-group">
+            <label for="msg"> Message:</label>
+            <textarea type="textarrea"  class="form-control" formControlName="msg" required
+              placeholder="Tapez le massage"
+              [ngClass]="{'is-invalid': mailForm.controls['msg'].touched && !mailForm.controls['msg'].valid}"
+               rows="3"></textarea>
+            <div class="invalid-feedback">
+              <span *ngIf="mailForm.controls['msg'].errors?.required">
+                Tapez le massage
+              </span>
+            </div>
+          </div>
+
+
+          <div class="modal-footer">
+            <button class="btn btn-primary mt-3" type="submit">ENVOYER
+            </button>
+
+            <button type="button" class="btn btn-warning mt-3" data-bs-dismiss="modal" (click)="onSendClose()">ANNULER
+            </button>
+          </div>
+        </form>
+      </div>
+    </ng-template>
+
